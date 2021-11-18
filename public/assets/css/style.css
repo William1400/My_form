@@ -1,0 +1,19 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+.toast-body {
+  border: solid 1px silver;
+  align-items: center;
+  justify-content: center;
+}
+
+#gender-buttons {
+  display: flex;
+  position: relative;
+}
+
+#gender-invalid-feedback {
+  display: flex;
+}
