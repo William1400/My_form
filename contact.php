@@ -90,6 +90,27 @@
                 $formIsValid = false;
             }
         }
+
+        if (isset($_POST['submit'])){
+
+            $to = $my_email; // this is your Email address
+            $from = $_POST['email']; // this is the sender's Email address
+            $first_name = $_POST['first_name'];
+            $last_name = $_POST['last_name'];
+            $subject = "Form submission";
+            $subject2 = "Copy of your form submission";
+            $message = $first_name . " " . $last_name . " wrote the following:" . "\n\n" . $_POST['message'];
+            $message2 = "Here is a copy of your message " . $first_name . "\n\n" . $_POST['message'];
+        
+            $headers = "From:" . $from;
+            $headers2 = "From:" . $to;
+            mail($to,$subject,$message,$headers);
+            mail($from,$subject2,$message2,$headers2); // sends a copy of the message to the sender
+            echo "Mail Sent. Thank you " . $first_name . ", I will contact you shortly.";
+            // You can also use header('Location: thank_you.php'); to redirect to another page.
+            // You cannot use header and echo together. It's one or the other.
+        }
+        
     }
     ?>
 
@@ -122,7 +143,14 @@
 
             if ($_SERVER['REQUEST_METHOD'] == 'POST' and $formIsValid == true) {
 
-                echo "<div id='popUp'><a href='contact.php'>close</a>This message has been envoyd</div>";
+               echo '<div class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                       Your email as been envoyed.
+                        </div>
+                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>';
             }
             ?>
             <form action="contact.php" method="post" class="row">
