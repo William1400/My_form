@@ -7,6 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
     <link rel="stylesheet" href="assets/css/style.css" type="text/css">
     <title>Contact</title>
 </head>
@@ -44,6 +46,16 @@
         'message' => []
     ];
 
+    $validity = [
+       
+        'gender' => "",
+        'first-name' => "",
+        'last-name' => "",
+        'company' => "",
+        'email' => "",
+        'subject' => "",
+        'message' => ""
+    ];
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -87,6 +99,7 @@
             $errors['message'][] =  'Please enter a message';
         }
 
+    
         $gender = isset($_POST['gender']) and $gender = $_POST['gender'];
         $firstName = filter_var($_POST['first-name'], FILTER_SANITIZE_STRING);
         $lastName = filter_var($_POST['last-name'], FILTER_SANITIZE_STRING);
@@ -96,12 +109,17 @@
         $message = filter_var($_POST['message'], FILTER_SANITIZE_STRING);
 
         $formIsValid = true;
-        foreach ($errors as $key => $value) {
+        foreach (array_keys($validity) as $key){
 
-            if (!empty($value)) {
+            if (empty($errors[$key])) {
+                        
+                $validity[$key] =  'is-valid';
+            } else {
 
-                $formIsValid = false;
+                $validity[$key] = 'is-invalid';
+                $formIsValid = false;   
             }
+            
         }
 
         if ($formIsValid == true) {
@@ -136,9 +154,11 @@
 
             //send the message
             $phpMailer->send();
-        }
-    }
 
+      
+        }
+        
+    }
     ?>
 
     <header>
@@ -164,198 +184,155 @@
     </header>
 
     <main>
-        <div class="container">
-
+        <div class="container" id="form-container">
+            
+            <div class="modal fade" id="modal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <div class="modal-body">
+                           Thank you.
+                           Your message has been sent!
+                        </div>
+                    </div>
+                </div>
+            </div>
+          
             <?php
 
-            //popUp message indicate if the mail has been sent
-            if ($_SERVER['REQUEST_METHOD'] == 'POST' and $formIsValid == true) {
+            if (($_SERVER['REQUEST_METHOD'] == 'POST') and ($formIsValid == true)) {
 
-                echo '<div class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body">
-                       Your email as been envoyed.
-                        </div>
-                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                </div>';
+                echo "  
+                    <script>
+                        let modal = new bootstrap.Modal(document.querySelector('#modal'), {});
+                        modal.show();
+                    </script>
+                ";
+
             }
+        
             ?>
 
-            <form action="contact.php" method="post" class="row">
+            <form action="contact.php" method="post" class="row" id="contact-form">
 
                 <h1>Contact</h1>
 
-                <?php
-                // first name: register validity bootsrap class 
-                $validity = '';
-                if ($_SERVER['REQUEST_METHOD'] == 'POST'){
-
-                    if (empty($errors['gender'])) {
-                        
-                        $validity = 'is-valid';
-                    } else {
-    
-                        $validity = 'is-invalid';
-                    }
-                    
-                } 
-
-                ?>
-
                 <div class="col-12 d-flex flex-column" id="gender-buttons">
                     <div class="col-12 d-flex">
-                    <div class="form-check form-check-inline ">
-                        <label class="form-check-label" for="gender-male">Male</label>
-                        <input 
-                            class="form-check-input <?php echo $validity ?>"
-                            type="radio" 
-                            name="gender" 
-                            id="gender-male" 
-                            <?php if ($gender == 'M'){echo 'checked';} ?> 
-                            value="M"
-                        >
-                    </div>
-
-                    <div class="form-check form-check-inline ">
-                        <label class="form-check-label" for="gender-female">Female</label>
-                        <input 
-                            class="form-check-input <?php echo $validity ?>" 
-                            type="radio" 
-                            name="gender" 
-                            id="gender-female"
-                            <?php if ($gender == 'F'){echo 'checked';} ?> 
-                            value="F"
-                        >
-
-                    </div>
-
-                    <div class="form-check form-check-inline ">
-                        <label class="form-check-label" for="gender-other">Other</label>
-                        <input 
-                            class="form-check-input <?php echo $validity ?>" 
-                            type="radio" 
-                            name="gender" 
-                            id="gender-other"
-                            <?php if ($gender == 'O'){echo 'checked';} ?> 
-                            value="O"
-                        >
-                    </div>
-                    </div>
-                        <div class="invalid-feedback d-flex" id="gender-invalid-feedback">
-                            <?php if (!empty($errors['gender'])) {echo $errors['gender'][0];} ?>
+                        <div class="form-check form-check-inline ">
+                            <label class="form-check-label" for="gender-male">Male</label>
+                            <input 
+                                class="form-check-input <?php echo $validity["gender"] ?>"
+                                type="radio" 
+                                name="gender" 
+                                id="gender-male" 
+                                <?php if ($gender == 'M'){echo 'checked';} ?> 
+                                value="M"
+                            >
                         </div>
-                </div>
 
-                <?php
-                $validity = '';
-                // first name: register validity bootsrap class 
-                if ($_SERVER['REQUEST_METHOD'] == 'POST'){
+                        <div class="form-check form-check-inline ">
+                            <label class="form-check-label" for="gender-female">Female</label>
+                            <input 
+                                class="form-check-input <?php echo $validity["gender"] ?>" 
+                                type="radio" 
+                                name="gender" 
+                                id="gender-female"
+                                <?php if ($gender == 'F'){echo 'checked';} ?> 
+                                value="F"
+                            >
+                        </div>
 
-                    if (empty($errors['first-name'])) {
+                        <div class="form-check form-check-inline ">
+                            <label class="form-check-label" for="gender-other">Other</label>
+                            <input 
+                                class="form-check-input <?php echo $validity["gender"] ?>" 
+                                type="radio" 
+                                name="gender" 
+                                id="gender-other"
+                                <?php if ($gender == 'O'){echo 'checked';} ?> 
+                                value="O"
+                            >
+                        </div>
+                    </div>
+                    <?php 
+                    if (!empty($errors['gender'])) { 
                         
-                        $validity = 'is-valid';
-                    } else {
-    
-                        $validity = 'is-invalid';
-                    }
-            
-                } 
-                ?>
-                <div class="col-6">
-                    <label for="first-name" class="form-label">First name</label>
-                    <input type="text" value="<?php echo $firstName ?>" class="form-control <?php echo $validity ?>" id="first-name" name="first-name">
-                    <div class="invalid-feedback">
-                        <?php if (!empty($errors['first-name'])) {echo $errors['first-name'][0];} ?>
+                        echo "
+                            <div class='invalid-feedback d-flex' id='gender-invalid-feedback'>
+                                {$errors['gender'][0]}
+                            </div>
+                        ";
+                    } 
+                
+                    ?>
+                </div>
+
+                <div class="col-12" id="names">
+                    <div class="name">
+                        <label for="first-name" class="form-label">First name</label>
+                        <input 
+                            type="text" 
+                            value="<?php echo $firstName ?>"
+                            class="form-control <?php echo $validity["first-name"] ?>" 
+                            id="first-name" 
+                            name="first-name"
+                        >
+                        <div class="invalid-feedback">
+                            <?php if (!empty($errors['first-name'])) {echo $errors['first-name'][0];} ?>
+                        </div>
+                    </div>
+
+                    <div class="name">
+                        <label for="last-name" class="form-label">Last name</label>
+                        <input 
+                            type="text" 
+                            value="<?php echo $lastName ?>" 
+                            class="form-control <?php echo $validity["last-name"]; ?>" 
+                            id="last-name" 
+                            name="last-name"
+                        >
+                        <div class="invalid-feedback">
+                            <?php if (!empty($errors['last-name'])) {echo $errors['last-name'][0];} ?>
+                        </div>
                     </div>
                 </div>
 
-                <?php
-                $validity = '';
-                // last name: register validity bootsrap class 
-                if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-                    if (empty($errors['last-name'])) {
-
-                        $validity = 'is-valid';
-                    } else {
-
-                        $validity = 'is-invalid';
-                    }
-                }
-
-
-                ?>
-                <div class="col-6">
-                    <label for="last-name" class="form-label">Last name</label>
-                    <input type="text" value="<?php echo $lastName ?>" class="form-control <?php echo $validity; ?>" id="last-name" name="last-name">
-                    <div class="invalid-feedback">
-                        <?php if (!empty($errors['last-name'])) {echo $errors['last-name'][0];} ?>
-                    </div>
-                </div>
-
-                <?php
-                $validity = '';
-                // company: register validity bootsrap class 
-                if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-                    if (empty($errors['company'])) {
-
-                        $validity = 'is-valid';
-                    } else {
-
-                        $validity = 'is-invalid';
-                    }
-                }
-
-                ?>
                 <div class="col-12">
                     <label for="company" class="form-label">Company</label>
-                    <input type="text" value="<?php echo $company ?>" class="form-control <?php echo $validity; ?>" id="company" name="company">
+                    <input 
+                        type="text"
+                        value="<?php echo $company ?>" 
+                        class="form-control <?php echo $validity["company"]; ?>" 
+                        id="company" 
+                        name="company"
+                    >
                     <div class="invalid-feedback">
                         <?php if (!empty($errors['company'])) {echo $errors['company'][0];} ?>
                     </div>
                 </div>
 
-                <?php
-                $validity = '';
-                // eamil: register validity bootsrap class 
-                if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-                    if (empty($errors['email'])) {
-
-                        $validity = 'is-valid';
-                    } else {
-
-                        $validity = 'is-invalid';
-                    }
-                }
-                ?>
                 <div class="col-12">
                     <label for="email" class="form-label">Email address</label>
-                    <input type="text" value= "<?php echo $email ?>" class="form-control <?php echo $validity; ?>" id="email" name="email">
+                    <input 
+                        type="text" 
+                        value= "<?php echo $email ?>" 
+                        class="form-control <?php echo $validity["email"]; ?>" 
+                        id="email" 
+                        name="email"
+                    >
                     <div class="invalid-feedback">
                         <?php if (!empty($errors['email'])) {echo $errors['email'][0];} ?>
                     </div>
                 </div>
 
-                <?php
-                $validity = '';
-                // subject: register validity bootsrap class 
-                if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-                    if (empty($errors['subject'])) {
-
-                        $validity = 'is-valid';
-                    } else {
-
-                        $validity = 'is-invalid';
-                    }
-                }
-                ?>
                 <div class="col-12">
                     <label for="subject" class="form-label">Subject</label>
-                    <select class="form-select <?php echo $validity; ?> " id="subject" name="subject" aria-label="select">
+                    <select 
+                        class="form-select <?php echo $validity["subject"]; ?> " 
+                        id="subject" 
+                        name="subject" 
+                    >
                         <option <?php if ($subject == ''){echo 'selected';} ?> value="">Choose...</option>
                         <option <?php if ($subject == 'job'){echo 'selected';} ?> value="job">Job</option>
                         <option <?php if ($subject == 'internship'){echo 'selected';} ?> value="internship">Internship</option>
@@ -366,23 +343,14 @@
                     </div>
                 </div>
 
-                <?php
-                $validity = '';
-                // message: register validity bootsrap class 
-                if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-                    if (empty($errors['message'])) {
-
-                        $validity = 'is-valid';
-                    } else {
-
-                        $validity = 'is-invalid';
-                    }
-                }
-                ?>
                 <div class="col-12">
                     <label for="message" class="form-label">Message</label>
-                    <textarea class="form-control <?php echo $validity; ?>"  id="message" name="message" rows="3"><?php echo $message ?></textarea>
+                    <textarea 
+                        class="form-control <?php echo $validity["message"]; ?>" 
+                        id="message" 
+                        name="message" 
+                        rows="3"
+                    ><?php echo $message ?></textarea>
                     <div class="invalid-feedback">
                         <?php if (!empty($errors['message'])) {echo $errors['message'][0];} ?>
                     </div>
@@ -394,22 +362,23 @@
             </form>
         </div>
     </main>
+
     <footer class="footer mt-auto">
         <div class="container-fluid">
-            <div class="row bg-light">
-                <div class="col-12">
+            <div class="bg-light" id="footer-bar">
+                <div>
                     <p>Média-Sociaux</p>
                 </div>
-                <div class="col-12">
-                    <a href="mailto:william.bady.1400@gmail.com"><i class="fas fa-at"></i></a>
-                    <a href="https://github.com/William1400"><i class="fab fa-github"></i></a>
-                    <a href="https://www.linkedin.com/in/william-bady-b3924221a/"><i class="fab fa-linkedin"></i></a>
+                <div id="icons">
+                    <a href="mailto:william.bady.1400@gmail.com"><i class="fas fa-at fa-2x"></i></a>
+                    <a href="https://github.com/William1400"><i class="fab fa-github fa-2x"></i></a>
+                    <a href="https://www.linkedin.com/in/william-bady-b3924221a/"><i class="fab fa-linkedin fa-2x"></i></a>
                 </div>
             </div>
         </div>
     </footer>
     <script src="https://kit.fontawesome.com/b404d5b12c.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+   
 </body>
 
 </html>
